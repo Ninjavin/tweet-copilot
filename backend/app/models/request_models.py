@@ -1,7 +1,9 @@
-from pydantic import BaseModel
+"""Re-export request models from the shared schema module.
 
-class TweetRequest(BaseModel):
-    topic: str
-    # user_text: str
-    tone: str
-    length: str
+This prevents duplicate definitions of `TweetRequest` and keeps a
+single source of truth in `app.schemas.tweet`.
+"""
+
+from app.schemas.tweet import TweetRequest
+
+__all__ = ["TweetRequest"]

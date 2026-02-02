@@ -5,6 +5,7 @@ export type GenerateTweetPayload = {
     user_text?: string;
     tone: string;
     length: string;
+    model_provider: "gemini" | "openai"
 };
 
 export async function generateTweet(payload: GenerateTweetPayload) {

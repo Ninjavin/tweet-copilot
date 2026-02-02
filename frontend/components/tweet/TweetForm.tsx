@@ -13,6 +13,7 @@ import {
 import { generateTweet } from "@/lib/api";
 
 export default function TweetForm() {
+    const [model, setModel] = useState<"gemini" | "openai">("gemini")
     const [input, setInput] = useState("");
     const [tone, setTone] = useState("Professional");
     const [length, setLength] = useState("Short");
@@ -26,6 +27,7 @@ export default function TweetForm() {
                 topic: input,
                 tone,
                 length,
+                model_provider: model
             });
             setTweet(res.tweet);
         } catch (e) {
@@ -44,6 +46,16 @@ export default function TweetForm() {
             />
 
             <div className="flex gap-3">
+                {/* Model Selector */}
+                <Select value={model} onValueChange={(v) => setModel(v as any)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select AI model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="gemini">Gemini</SelectItem>
+                        <SelectItem value="openai">OpenAI</SelectItem>
+                    </SelectContent>
+                </Select>
                 <Select value={tone} onValueChange={setTone}>
                     <SelectTrigger>
                         <SelectValue placeholder="Tone" />
