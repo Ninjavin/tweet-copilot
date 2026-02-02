@@ -1,3 +1,5 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export type GenerateTweetPayload = {
     topic?: string;
     user_text?: string;
@@ -6,7 +8,7 @@ export type GenerateTweetPayload = {
 };
 
 export async function generateTweet(payload: GenerateTweetPayload) {
-    const res = await fetch("http://localhost:8000/api/generate", {
+    const res = await fetch(`${API_URL}/api/generate`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
