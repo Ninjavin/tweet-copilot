@@ -21,6 +21,15 @@ RefineAction = Literal[
     "punchier",
 ]
 
+EngagementMode = Literal[
+    "none",
+    "clickbait_fun",
+    "rage_bait_light",
+    "coworker_story",
+    "build_drama",
+    "unpopular_opinion",
+]
+
 class TweetRequest(BaseModel):
     topic: Optional[str] = None
     raw_text: Optional[str] = None
@@ -29,3 +38,4 @@ class TweetRequest(BaseModel):
     model_provider: str          # gemini | openai
     structures: List[StructureToggle] = []
     refine_action: Optional[RefineAction] = None
+    engagement_mode: EngagementMode = "none"

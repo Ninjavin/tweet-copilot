@@ -10,7 +10,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { generateTweet, type RefineAction, type StructureToggle } from "@/lib/api";
+import {
+    generateTweet,
+    type RefineAction,
+    type StructureToggle,
+} from "@/lib/api";
 import { Check, Columns3, Copy, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -57,6 +61,22 @@ const REFINE_ACTIONS: { key: RefineAction; label: string }[] = [
     { key: "viral", label: "📈 Make more viral" },
     { key: "calmer", label: "🧊 Make calmer" },
     { key: "punchier", label: "🔥 Add more punch" },
+];
+
+const FUN_ENGAGEMENT_MODES = [
+    "clickbait_fun",
+    "rage_bait_light",
+    "coworker_story",
+    "build_drama",
+    "unpopular_opinion",
+] as const;
+
+const FUN_AUTO_TOPICS = [
+    "A hilarious co-worker story from a sprint planning disaster",
+    "A rage-bait but defensible hot take about engineering productivity",
+    "A click-baity lesson from a broken production deploy",
+    "A funny build pipeline incident that taught a real lesson",
+    "An unpopular opinion about code reviews that sparks discussion",
 ];
 
 function splitLongTextToThread(text: string): string[] {
@@ -144,7 +164,7 @@ function buildThreadSegments(text: string, threadMode: boolean): string[] {
 }
 
 export default function TweetForm() {
-    const [model, setModel] = useState<"gemini" | "openai">("gemini")
+    const [model, setModel] = useState<"gemini" | "openai">("openai")
     const [input, setInput] = useState("");
     const [lastPrompt, setLastPrompt] = useState("");
     const [tone, setTone] = useState("Professional");
@@ -184,6 +204,7 @@ export default function TweetForm() {
                 length,
                 model_provider: model,
                 structures: requestStructures,
+                engagement_mode: "none",
             });
             const nextVariants = Array.isArray(res.variants) && res.variants.length > 0
                 ? res.variants
@@ -221,6 +242,7 @@ export default function TweetForm() {
                 model_provider: model,
                 structures: requestStructures,
                 refine_action: action,
+                engagement_mode: "none",
             });
             const nextVariants = Array.isArray(res.variants) && res.variants.length > 0
                 ? res.variants
@@ -253,6 +275,38 @@ export default function TweetForm() {
             } catch {
                 toast.error("Failed to copy tweet to clipboard.");
             }
+        }
+    }
+
+    async function handleAutoGenerateFun() {
+        try {
+            setLoading(true);
+            const randomTopic = FUN_AUTO_TOPICS[Math.floor(Math.random() * FUN_AUTO_TOPICS.length)];
+            const randomMode = FUN_ENGAGEMENT_MODES[Math.floor(Math.random() * FUN_ENGAGEMENT_MODES.length)];
+            const requestStructures = threadMode
+                ? Array.from(new Set<StructureToggle>([...structures, "thread"]))
+                : structures;
+            const res = await generateTweet({
+                topic: randomTopic,
+                tone: "Gen-Z",
+                length,
+                model_provider: model,
+                structures: requestStructures,
+                engagement_mode: randomMode,
+            });
+            const nextVariants = Array.isArray(res.variants) && res.variants.length > 0
+                ? res.variants
+                : [res.tweet].filter(Boolean);
+            setVariants(nextVariants);
+            setSelectedVariantIndex(0);
+            setCompareView(nextVariants.length > 1);
+            setThreadDraftByVariant({});
+            setLastPrompt(randomTopic);
+            toast.success("Generated a quirky engagement post.");
+        } catch {
+            toast.error("Failed to auto-generate fun post.");
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -445,6 +499,15 @@ export default function TweetForm() {
                         Generate Post
                     </span>
                 )}
+            </Button>
+            <Button
+                type="button"
+                variant="outline"
+                onClick={handleAutoGenerateFun}
+                disabled={loading}
+                className="w-full"
+            >
+                🎲 Auto-generate fun post
             </Button>
 
             {activeTweet && (

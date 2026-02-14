@@ -20,6 +20,15 @@ REFINE_INSTRUCTIONS = {
     "punchier": "Add more punch: stronger verbs, higher energy, tighter rhythm.",
 }
 
+ENGAGEMENT_MODE_INSTRUCTIONS = {
+    "none": "No special engagement-mode behavior.",
+    "clickbait_fun": "Use playful click-worthy framing: curiosity gap, bold payoff, fun tone, but keep it honest and specific.",
+    "rage_bait_light": "Use light debate-bait framing: present a provocative but defensible take that invites discussion without abuse.",
+    "coworker_story": "Write as a fun co-worker/dev-team story with concrete incident + takeaway.",
+    "build_drama": "Frame as build/release drama (mistake, tension, fix, lesson) with high narrative momentum.",
+    "unpopular_opinion": "Use an unpopular opinion angle and defend it with crisp reasoning.",
+}
+
 
 def _render_structure_rules(req: TweetRequest) -> str:
     if not req.structures:
@@ -38,6 +47,7 @@ def build_prompt(req: TweetRequest) -> str:
     topic = (req.topic or "").strip()
     mode = "refine" if source_text else "new"
     refine_rule = REFINE_INSTRUCTIONS.get(req.refine_action, "None")
+    engagement_rule = ENGAGEMENT_MODE_INSTRUCTIONS.get(req.engagement_mode, ENGAGEMENT_MODE_INSTRUCTIONS["none"])
 
     return f"""
 Write content for X/Twitter.
@@ -48,6 +58,8 @@ Tone: {req.tone}
 Length: {req.length}
 Structure Toggles: {", ".join(req.structures) if req.structures else "none"}
 Refine Action: {refine_rule}
+Engagement Mode: {req.engagement_mode}
+Engagement Rule: {engagement_rule}
 Source Draft:
 {source_text if source_text else "none"}
 
@@ -59,6 +71,7 @@ Rules:
 - No hashtags unless asked
 - If source draft exists, transform that draft according to Refine Action instead of starting from zero.
 - Preserve the original topic/intent unless the Refine Action requires a style shift.
+- Keep it safe: no harassment, hate, personal attacks, or fabricated claims.
 
 Structure-specific requirements:
 {structure_rules}

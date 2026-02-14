@@ -30,6 +30,14 @@ export type RefineAction =
     | "calmer"
     | "punchier";
 
+export type EngagementMode =
+    | "none"
+    | "clickbait_fun"
+    | "rage_bait_light"
+    | "coworker_story"
+    | "build_drama"
+    | "unpopular_opinion";
+
 export type GenerateTweetPayload = {
     topic?: string;
     raw_text?: string;
@@ -39,6 +47,7 @@ export type GenerateTweetPayload = {
     model_provider: "gemini" | "openai";
     structures?: StructureToggle[];
     refine_action?: RefineAction;
+    engagement_mode?: EngagementMode;
 };
 
 export async function generateTweet(payload: GenerateTweetPayload) {
